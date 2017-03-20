@@ -5,90 +5,77 @@
  */
 
 import React, { Component } from 'react';
-import MapView from 'react-native-maps';
-
 import {
   AppRegistry,
   StyleSheet,
   Text,
   View,
-  Button
+  Image,
+  ScrollView,
+  Alert
 } from 'react-native';
 
-const onButtonPress = () => {
-  alert('Button has been pressed!');
-  navigator.geolocation.getCurrentPosition(
-      (position) => {
-        var initialPosition = JSON.stringify(position);
-        console.log('position', initialPosition);
-        alert(initialPosition)
-        this.setState({initialPosition});
-      },
-      (error) => alert(error.message),
-      {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000}
-    );
-};
-
-const markerLatlng = {
-  latitude: 37.78825,
-  longitude: -122.4324
-};
-
 export default class MyProject extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {initialPosition: ''};
+  
+  constructor() {
+    super();
+    this.state = {
+      albums: []
+    };
+    this.getAlbumsFromApiAsync();
+  }
+
+  getAlbumsFromApiAsync() {
+    return fetch('https://jsonplaceholder.typicode.com/photos')
+      .then((response) => response.json())
+      .then((responseJson) => {
+        this.setState({albums: responseJson})
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   }
 
   render() {
     return (
-      <View style ={styles.container}>
-       <MapView
-         style={styles.map}
-         region={{
-           latitude: 37.78825,
-           longitude: -122.4324,
-           latitudeDelta: 0.015,
-           longitudeDelta: 0.0121,
-         }}
-       >
-       <MapView.Marker
-        coordinate={markerLatlng}
-        title={'I am here'}
-        description={'Sorry, GPS ne rabotaet'}
-      />
-       </MapView>
-       <Button
-        onPress={onButtonPress.bind(this)}
-        title="Learn More"
-        color="#841584"
-        accessibilityLabel="Learn more about this purple button"
-      />
-     </View>
+      <ScrollView style={styles.scrollView}>
+        {
+          this.state.albums.map((item, index)=>{
+            return (
+              <Image key={index} style={styles.button} source={{uri: item.thumbnailUrl}} />
+            )
+          })
+        }
+      </ScrollView>
     );
   }
 }
 
 const styles = StyleSheet.create({
-  
   container: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'flex-end',
-    alignItems: 'center'
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F5FCFF',
   },
-  map: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0
-  }
-
-
+  welcome: {
+    fontSize: 20,
+    textAlign: 'center',
+    margin: 10,
+  },
+  instructions: {
+    textAlign: 'center',
+    color: '#333333',
+    marginBottom: 5,
+  },
+  button: {
+    width: 100,
+    height: 100
+  },
+  scrollView: {
+    backgroundColor: '#6A85B1',
+    height: 300,
+  },
 });
 
 AppRegistry.registerComponent('MyProject', () => MyProject);
